@@ -59,10 +59,14 @@ struct RecipeView: View {
     let step8: String
     let step9: String
     let step10: String
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
     var body: some View {
         ScrollView{
             ZStack{
-                Background()
+                if colorScheme == .dark {
+                    Background(topColour: .black, bottomColour: .MyColor.myColor)}
+                else{
+                    Background(topColour: .white, bottomColour: .MyColor.myColor)}
                 VStack{
                     Text(name).padding()
                     Text("Ingredients:").padding()
@@ -155,8 +159,13 @@ struct MotherView: View {
 
 struct RecipeSaved: View {
     @StateObject var page: PageSelector
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
     var body: some View {
-        ZStack{Background()
+        ZStack{
+            if colorScheme == .dark {
+                Background(topColour: .black, bottomColour: .MyColor.myColor)}
+            else{
+                Background(topColour: .white, bottomColour: .MyColor.myColor)}
         Text("Recipe Saved!").padding()
         }
     }
@@ -165,9 +174,13 @@ struct RecipeSaved: View {
 struct AddNameView: View {
     @StateObject var page: PageSelector
     @StateObject var name: Name
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
     var body: some View {
         ZStack{
-            Background()
+            if colorScheme == .dark {
+                Background(topColour: .black, bottomColour: .MyColor.myColor)}
+            else{
+                Background(topColour: .white, bottomColour: .MyColor.myColor)}
         VStack{
         Text("Please enter the name of your recipe:")
         TextField("enter name here", text: $name.word)
@@ -183,6 +196,7 @@ struct AddNameView: View {
 
 struct AddRecipeView: View {
     @Environment(\.managedObjectContext) var managedObjectContext
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
     @StateObject var page: PageSelector
     @ObservedObject var name: Name
     @State var ingCounter: Int = 0
@@ -193,7 +207,10 @@ struct AddRecipeView: View {
     @State var data = RecipeUnstored()
     var body: some View {
         ZStack{
-            Background()
+            if colorScheme == .dark {
+                Background(topColour: .black, bottomColour: .MyColor.myColor)}
+            else{
+                Background(topColour: .white, bottomColour: .MyColor.myColor)}
             ScrollView{
                 VStack{
                     Text("\(name.word):").padding()
@@ -447,11 +464,17 @@ struct RecipeUnstored {
 }
 
 struct Background: View {
+    var topColour: Color
+    var bottomColour: Color
     var body: some View {
-        LinearGradient(gradient: Gradient(colors: [.white, .green]),
+        LinearGradient(gradient: Gradient(colors: [topColour, bottomColour]),
                                           startPoint: .topLeading,
                                           endPoint: .bottomTrailing).edgesIgnoringSafeArea(.all)
     }
+}
+
+struct MyColor {
+    let myColor = Color("myGreen")
 }
 
 struct ButtonWidget: View {
