@@ -61,15 +61,16 @@ struct RecipeView: View {
     let step10: String
     @Environment(\.colorScheme) var colorScheme: ColorScheme
     var body: some View {
-        ScrollView{
             ZStack{
                 if colorScheme == .dark {
-                    Background(topColour: .black, bottomColour: .MyColor.myColor)}
+                    Background(topColour: .black, bottomColour: Color("myGreen"))}
                 else{
-                    Background(topColour: .white, bottomColour: .MyColor.myColor)}
+                    Background(topColour: .white, bottomColour: Color("myGreen"))}
+                ScrollView{
                 VStack{
-                    Text(name).padding()
-                    Text("Ingredients:").padding()
+                    Spacer()
+                    SuperTitle(words: name)
+                    Title(words: "Ingredients:")
                     Group{
                     if ing1 != "" {
                         Text(ing1)
@@ -102,7 +103,7 @@ struct RecipeView: View {
                         Text(ing10)
                     }
                     }
-                    Text("Method:").padding()
+                    Title(words: "Method:")
                     Group{
                         if step1 != "" {
                             Text(step1)
@@ -135,6 +136,7 @@ struct RecipeView: View {
                             Text(step10)
                         }
                     }
+                    
                 }
             }
         }
@@ -163,10 +165,10 @@ struct RecipeSaved: View {
     var body: some View {
         ZStack{
             if colorScheme == .dark {
-                Background(topColour: .black, bottomColour: .MyColor.myColor)}
+                Background(topColour: .black, bottomColour: Color("myGreen"))}
             else{
-                Background(topColour: .white, bottomColour: .MyColor.myColor)}
-        Text("Recipe Saved!").padding()
+                Background(topColour: .white, bottomColour: Color("myGreen"))}
+            Title(words: "Recipe Saved!")
         }
     }
 }
@@ -174,18 +176,25 @@ struct RecipeSaved: View {
 struct AddNameView: View {
     @StateObject var page: PageSelector
     @StateObject var name: Name
+    @State var displayMessage: String = ""
     @Environment(\.colorScheme) var colorScheme: ColorScheme
     var body: some View {
         ZStack{
             if colorScheme == .dark {
-                Background(topColour: .black, bottomColour: .MyColor.myColor)}
+                Background(topColour: .black, bottomColour: Color("myGreen"))}
             else{
-                Background(topColour: .white, bottomColour: .MyColor.myColor)}
+                Background(topColour: .white, bottomColour: Color("myGreen"))}
         VStack{
-        Text("Please enter the name of your recipe:")
-        TextField("enter name here", text: $name.word)
+            Title(words: "Please enter the name of your recipe:")
+            Text(displayMessage).padding()
+            TextField("enter name here", text: $name.word).padding()
         Button(action:{
-            page.num = 1
+            if name.word == "" {
+                displayMessage = "Please enter a name"
+            }
+            else {
+                page.num = 1
+            }
         }, label: {
             ButtonWidget(words: "Add name")
         })
@@ -208,32 +217,45 @@ struct AddRecipeView: View {
     var body: some View {
         ZStack{
             if colorScheme == .dark {
-                Background(topColour: .black, bottomColour: .MyColor.myColor)}
+                Background(topColour: .black, bottomColour: Color("myGreen"))}
             else{
-                Background(topColour: .white, bottomColour: .MyColor.myColor)}
+                Background(topColour: .white, bottomColour: Color("myGreen"))}
             ScrollView{
                 VStack{
-                    Text("\(name.word):").padding()
+                    Spacer()
+                    Group{
+                        SuperTitle(words: "\(name.word):")
                     Text(displayText).padding()
+                    }
                     HStack{
-                        TextField("Add ingredient here", text: $ing1)
+                        TextField("Add ingredient here", text: $ing1).padding()
                         Button(action:{
-                            addIngToData()
+                            if ing1 == "" {
+                                displayText = "Please type in an ingredient"
+                            }
+                            else {
+                                addIngToData()
+                            }
                         }, label:{
                             ButtonWidget(words: "Add")
                         })
                     }
                     HStack{
-                        TextField("Add step here", text: $step1)
+                        TextField("Add step here", text: $step1).padding()
                         Button(action:{
-                            addStepToData()
+                            if step1 == "" {
+                                displayText = "Please type in a step"
+                            }
+                            else{
+                                addStepToData()
+                            }
                         }, label:{
                             ButtonWidget(words: "Add")
                         })
                     }
-                    Text("Ingredients:").padding()
+                    Title(words: "Ingredients:")
                     DisplayIngData(words: data)
-                    Text("Method:").padding()
+                    Title(words: "Method:")
                     DisplayStepData(words: data)
                     Button(action:{
                         saveData()
@@ -241,6 +263,7 @@ struct AddRecipeView: View {
                     }, label:{
                         ButtonWidget(words: "Save Recipe")
                     })
+                    Spacer()
                 }
             }
         }
@@ -473,8 +496,22 @@ struct Background: View {
     }
 }
 
-struct MyColor {
-    let myColor = Color("myGreen")
+struct Title: View {
+    var words: String
+    var body: some View {
+        Text(words)
+            .padding()
+            .font(.system(size:18, weight: .bold))
+    }
+}
+
+struct SuperTitle: View {
+    var words: String
+    var body: some View {
+        Text(words)
+            .padding()
+            .font(.system(size:22, weight: .bold))
+    }
 }
 
 struct ButtonWidget: View {
@@ -491,6 +528,6 @@ struct ButtonWidget: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(name: Name(), page: PageSelector()).preferredColorScheme(.dark)
+        RecipeSaved(page: PageSelector()).preferredColorScheme(.dark)
     }
 }
