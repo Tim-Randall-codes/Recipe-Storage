@@ -30,11 +30,17 @@ struct ContentView: View {
                     List { ForEach(items, id: \.self) { item in
                         NavigationLink(destination: RecipeView(name: item.name ?? "unknown", ing1: item.ing1 ?? "unknown", ing2: item.ing2 ?? "unknown", ing3: item.ing3 ?? "unknown", ing4: item.ing4 ?? "unknown", ing5: item.ing5 ?? "unknown", ing6: item.ing6 ?? "unknown", ing7: item.ing7 ?? "unknown", ing8: item.ing8 ?? "unknown", ing9: item.ing9 ?? "unknown", ing10: item.ing10 ?? "unknown", step1: item.step1 ?? "unknown", step2: item.step2 ?? "unknown", step3: item.step3 ?? "unknown", step4: item.step4 ?? "unknown", step5: item.step5 ?? "unknown", step6: item.step6 ?? "unknown", step7: item.step7 ?? "unknown", step8: item.step8 ?? "unknown", step9: item.step9 ?? "unknown", step10: item.step10 ?? "unknown")){
                             Text(item.name ?? "unknown")}
-                        }
+                        }.onDelete(perform: removeItem)
                     }.navigationTitle("Recipe Storage")
                 }
         }
     }
+    func removeItem(at offsets: IndexSet) {
+        for index in offsets {
+            let itm = items[index]
+            PersistenceController.shared.delete(itm)
+            }
+        }
 }
 
 struct RecipeView: View {
