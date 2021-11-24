@@ -40,7 +40,7 @@ struct ContentView: View {
             let itm = items[index]
             PersistenceController.shared.delete(itm)
             }
-        }
+        } 
 }
 
 struct RecipeView: View {
@@ -150,8 +150,8 @@ struct RecipeView: View {
 }
 
 struct MotherView: View {
-    @ObservedObject var page: PageSelector
-    @ObservedObject var name: Name
+    @StateObject var page: PageSelector
+    @StateObject var name: Name
     var body: some View {
         if page.num == 0 {
             AddNameView(page: page, name: name).onAppear{name.word = ""}
