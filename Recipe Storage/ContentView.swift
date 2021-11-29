@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+// RecipeView need to add sectioned list to show the items in the name ing and step lists
+// Create view variables to store the name, ings and steps entered. Then display these
+// use a String var and two list vars.
+
 struct BossView: View {
     @StateObject var viewChanger: ViewChanger
     var body: some View {
@@ -92,6 +96,9 @@ struct AddRecipeView: View {
     @State var ing: String = ""
     @State var step: String = ""
     @State var showName: Bool = true
+    @State var nameDisplay: String = ""
+    @State var ingDisplay = [String] ()
+    @State var stepDisplay = [String] ()
     var body: some View {
         VStack{
             Text("Add Recipe")
