@@ -1,29 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="20E232" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
-    <entity name="Recipe" representedClassName="Recipe" syncable="YES" codeGenerationType="class">
-        <attribute name="ing1" optional="YES" attributeType="String"/>
-        <attribute name="ing2" optional="YES" attributeType="String"/>
-        <attribute name="ing3" optional="YES" attributeType="String"/>
-        <attribute name="ing4" optional="YES" attributeType="String"/>
-        <attribute name="ing5" optional="YES" attributeType="String"/>
-        <attribute name="ing6" optional="YES" attributeType="String"/>
-        <attribute name="ing7" optional="YES" attributeType="String"/>
-        <attribute name="ing8" optional="YES" attributeType="String"/>
-        <attribute name="ing9" optional="YES" attributeType="String"/>
-        <attribute name="ing10" optional="YES" attributeType="String"/>
-        <attribute name="name" optional="YES" attributeType="String"/>
-        <attribute name="step1" optional="YES" attributeType="String"/>
-        <attribute name="step2" optional="YES" attributeType="String"/>
-        <attribute name="step3" optional="YES" attributeType="String"/>
-        <attribute name="step4" optional="YES" attributeType="String"/>
-        <attribute name="step5" optional="YES" attributeType="String"/>
-        <attribute name="step6" optional="YES" attributeType="String"/>
-        <attribute name="step7" optional="YES" attributeType="String"/>
-        <attribute name="step8" optional="YES" attributeType="String"/>
-        <attribute name="step9" optional="YES" attributeType="String"/>
-        <attribute name="step10" optional="YES" attributeType="String"/>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="19461" systemVersion="21A559" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="Thing" representedClassName="Thing" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="type" optional="YES" attributeType="String"/>
+        <attribute name="words" optional="YES" attributeType="String"/>
     </entity>
     <elements>
-        <element name="Recipe" positionX="-63" positionY="-18" width="128" height="344"/>
+        <element name="Thing" positionX="-63" positionY="-18" width="128" height="74"/>
     </elements>
 </model>

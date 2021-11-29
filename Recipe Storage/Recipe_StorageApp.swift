@@ -9,20 +9,18 @@ import SwiftUI
 
 @main
 struct Recipe_StorageApp: App {
-    @StateObject var name = Name()
-    @StateObject var page = PageSelector()
+    @StateObject var viewChanger = ViewChanger()
     let persistenceController = PersistenceController.shared
     var body: some Scene {
         WindowGroup {
-            ContentView(name: name, page: page).environment(\.managedObjectContext, persistenceController.container.viewContext)
+            BossView(viewChanger: viewChanger).environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
 }
 
-class Name: ObservableObject {
-    @Published var word: String = ""
-}
-
-class PageSelector: ObservableObject {
+class ViewChanger: ObservableObject {
     @Published var num: Int = 0
 }
+
+var globalInt: Int64 = 0
+var globalInt2: Int64 = 0
