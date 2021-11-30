@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-// RecipeView need to add sectioned list to show the items in the name ing and step lists
 // Create view variables to store the name, ings and steps entered. Then display these
 // use a String var and two list vars.
 
@@ -75,22 +74,42 @@ struct RecipeView: View {
     @FetchRequest(
         entity: Thing.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Thing.words, ascending: true )],
-        predicate: NSPredicate(format: "(id = globalInt) AND (type = %@)", "name"))var name: FetchedResults<Thing>
+        predicate: NSPredicate(format: "(id = %@) AND (type = %@)", globalInt, "name"))var name: FetchedResults<Thing>
     @FetchRequest(
         entity: Thing.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Thing.words, ascending: true )],
-        predicate: NSPredicate(format: "(id = globalInt) AND (type = %@)", "ing"))var ings: FetchedResults<Thing>
+        predicate: NSPredicate(format: "(id = %@) AND (type = %@)", globalInt, "ing"))var ings: FetchedResults<Thing>
     @FetchRequest(
         entity: Thing.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \Thing.words, ascending: true )],
-        predicate: NSPredicate(format: "(id = globalInt) AND (type = %@)", "step"))var steps: FetchedResults<Thing>
+        predicate: NSPredicate(format: "(id = %@)", globalInt))var steps: FetchedResults<Thing>
+    let ingpredicate = NSPredicate(format: "type = %@", "ing")
+    let inglist = ings.filtered(using: ingpredicate)
     var body: some View {
-        Text("hello world")
+        List {
+            Section(header: Text("Recipe:")) {
+                ForEach(name, id: \.self) { item in
+                    Text(item.words ?? "unknown")
+                }}
+            Section(header: Text("Ingredients:")) {
+                ForEach(ings, id: \.self) { item in
+                    Text(item.words ?? "unknown")
+                }}
+            Section(header: Text("Method:")) {
+                ForEach(steps, id: \.self) { item in
+                    Text(item.words ?? "unknown")
+                }}
+        }
     }
+    
 }
 
 struct AddRecipeView: View {
     @Environment(\.managedObjectContext) var managedObjectContext
+    @FetchRequest(
+        entity: Thing.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Thing.words, ascending: true )],
+        predicate: NSPredicate(format: "type = %@", "name"))var items: FetchedResults<Thing>
     @StateObject var viewChanger: ViewChanger
     @State var name: String = ""
     @State var ing: String = ""
@@ -108,8 +127,9 @@ struct AddRecipeView: View {
                     Button(action:{
                         let newObject = Thing(context: managedObjectContext)
                         newObject.words = name
-                        newObject.id = globalInt
+                        newObject.id = Int64(items.count)
                         newObject.type = "name"
+                        PersistenceController.shared.save()
                         showName = false
                         name = ""
                     }, label:{
@@ -125,8 +145,9 @@ struct AddRecipeView: View {
                 Button(action:{
                     let newObject = Thing(context: managedObjectContext)
                     newObject.words = ing
-                    newObject.id = globalInt
+                    newObject.id = Int64(items.count)
                     newObject.type = "ing"
+                    PersistenceController.shared.save()
                     ing = ""
                 }, label:{
                     Text("Add")
@@ -137,8 +158,9 @@ struct AddRecipeView: View {
                 Button(action:{
                     let newObject = Thing(context: managedObjectContext)
                     newObject.words = step
-                    newObject.id = globalInt
+                    newObject.id = Int64(items.count)
                     newObject.type = "step"
+                    PersistenceController.shared.save()
                     step = ""
                 }, label:{
                     Text("Add")
@@ -162,7 +184,7 @@ struct ButtonWidget: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(viewChanger: ViewChanger()).preferredColorScheme(.dark)
+        RecipeView(viewChanger: ViewChanger()).preferredColorScheme(.dark)
     }
 }
      
