@@ -13,7 +13,7 @@ struct Recipe_StorageApp: App {
     let persistenceController = PersistenceController.shared
     var body: some Scene {
         WindowGroup {
-            BossView(viewChanger: viewChanger).environment(\.managedObjectContext, persistenceController.container.viewContext)
+            ContentView().environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
 }
@@ -21,5 +21,6 @@ struct Recipe_StorageApp: App {
 class ViewChanger: ObservableObject {
     @Published var num: Int = 0
 }
+
 
 var globalInt: Int64 = 0

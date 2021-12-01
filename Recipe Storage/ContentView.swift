@@ -10,21 +10,8 @@ import SwiftUI
 // Create view variables to store the name, ings and steps entered. Then display these
 // use a String var and two list vars.
 
-struct BossView: View {
-    @StateObject var viewChanger: ViewChanger
-    var body: some View {
-        if viewChanger.num == 0 {
-            ContentView(viewChanger: viewChanger)
-        }
-        else if viewChanger.num == 1 {
-            RecipeView(viewChanger: viewChanger)
-        }
-    }
-}
-
 struct ContentView: View {
     @Environment(\.managedObjectContext) var managedObjectContext
-    @StateObject var viewChanger: ViewChanger
     @FetchRequest(
         entity: RName.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \RName.words, ascending: true )])var items: FetchedResults<RName>
@@ -34,7 +21,7 @@ struct ContentView: View {
                     Text("Recipe Storage")
                     HStack{
                         Spacer()
-                        NavigationLink(destination: AddRecipeView(viewChanger: viewChanger)){
+                        NavigationLink(destination: AddRecipeView()){
                             Text("add")
                             //Image(systemName: "plus")
                                 //.resizable()
@@ -44,10 +31,8 @@ struct ContentView: View {
                         }
                     }
                     List { ForEach(items, id: \.self) { item in
-                        NavigationLink(destination: RecipeView(viewChanger: viewChanger)){
+                        NavigationLink(destination: RecipeView(idnum: Int(item.id))){
                             Text(item.words ?? "unknown")
-                        }.onAppear(){
-                            globalInt = item.id
                         }
                         }
                     //.onDelete(perform: removeItem)
@@ -64,33 +49,42 @@ struct ContentView: View {
 }
 
 struct RecipeView: View {
-    @StateObject var viewChanger: ViewChanger
+    let idnum: Int
     @Environment(\.managedObjectContext) var managedObjectContext
     @FetchRequest(
         entity: RName.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \RName.words, ascending: true )],
-        predicate: NSPredicate(format: "id = %@", globalInt))var name: FetchedResults<RName>
+        sortDescriptors: [NSSortDescriptor(keyPath: \RName.words, ascending: true )])var name: FetchedResults<RName>
     @FetchRequest(
         entity: Ing.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Ing.words, ascending: true )],
-        predicate: NSPredicate(format: "id = %@", globalInt))var ings: FetchedResults<Ing>
+        sortDescriptors: [NSSortDescriptor(keyPath: \Ing.words, ascending: true )])var ings: FetchedResults<Ing>
     @FetchRequest(
         entity: Step.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Step.words, ascending: true )],
-        predicate: NSPredicate(format: "id = %@", globalInt))var steps: FetchedResults<Step>
+        sortDescriptors: [NSSortDescriptor(keyPath: \Step.words, ascending: true )])var steps: FetchedResults<Step>
     var body: some View {
         List {
             Section(header: Text("Recipe:")) {
                 ForEach(name, id: \.self) { item in
-                    Text(item.words ?? "unknown")
+                    Group{
+                        if item.id == idnum {
+                            Text(item.words ?? "unknown")
+                        }
+                    }
                 }}
             Section(header: Text("Ingredients:")) {
                 ForEach(ings, id: \.self) { item in
-                    Text(item.words ?? "unknown")
+                    Group{
+                        if item.id == idnum {
+                            Text(item.words ?? "unknown")
+                        }
+                    }
                 }}
             Section(header: Text("Method:")) {
                 ForEach(steps, id: \.self) { item in
-                    Text(item.words ?? "unknown")
+                    Group{
+                        if item.id == idnum {
+                            Text(item.words ?? "unknown")
+                        }
+                    }
                 }}
         }
     }
@@ -102,7 +96,6 @@ struct AddRecipeView: View {
     @FetchRequest(
         entity: RName.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \RName.words, ascending: true )])var items: FetchedResults<RName>
-    @StateObject var viewChanger: ViewChanger
     @State var nameEntry: String = ""
     @State var ingEntry: String = ""
     @State var stepEntry: String = ""
@@ -119,7 +112,7 @@ struct AddRecipeView: View {
                     Button(action:{
                         let newObject = RName(context: managedObjectContext)
                         newObject.words = nameEntry
-                        newObject.id = Int64(items.count + 1)
+                        newObject.id = Int64(items.count)
                         PersistenceController.shared.save()
                         showName = false
                         nameDisplay = nameEntry
@@ -137,7 +130,12 @@ struct AddRecipeView: View {
                 Button(action:{
                     let newObject = Ing(context: managedObjectContext)
                     newObject.words = ingEntry
-                    newObject.id = Int64(items.count + 1)
+                    if showName == true {
+                        newObject.id = Int64(items.count)
+                    }
+                    else {
+                        newObject.id = Int64(items.count - 1)
+                    }
                     PersistenceController.shared.save()
                     ingDisplay.append(ingEntry)
                     ingEntry = ""
@@ -150,7 +148,12 @@ struct AddRecipeView: View {
                 Button(action:{
                     let newObject = Step(context: managedObjectContext)
                     newObject.words = stepEntry
-                    newObject.id = Int64(items.count + 1)
+                    if showName == true {
+                        newObject.id = Int64(items.count)
+                    }
+                    else {
+                        newObject.id = Int64(items.count - 1)
+                    }
                     PersistenceController.shared.save()
                     stepDisplay.append(stepEntry)
                     stepEntry = ""
@@ -189,7 +192,7 @@ struct ButtonWidget: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        RecipeView(viewChanger: ViewChanger()).preferredColorScheme(.dark)
+        ContentView().preferredColorScheme(.dark)
     }
 }
      
