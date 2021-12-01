@@ -23,4 +23,3 @@ class ViewChanger: ObservableObject {
 }
 
 var globalInt: Int64 = 0
-var globalInt2: Int64 = 0

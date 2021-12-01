@@ -19,9 +19,6 @@ struct BossView: View {
         else if viewChanger.num == 1 {
             RecipeView(viewChanger: viewChanger)
         }
-        else if viewChanger.num == 2 {
-            AddRecipeView(viewChanger: viewChanger)
-        }
     }
 }
 
@@ -29,9 +26,8 @@ struct ContentView: View {
     @Environment(\.managedObjectContext) var managedObjectContext
     @StateObject var viewChanger: ViewChanger
     @FetchRequest(
-        entity: Thing.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Thing.words, ascending: true )],
-        predicate: NSPredicate(format: "type = %@", "name"))var items: FetchedResults<Thing>
+        entity: RName.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \RName.words, ascending: true )])var items: FetchedResults<RName>
     var body: some View {
         NavigationView {
                 VStack{
@@ -48,12 +44,11 @@ struct ContentView: View {
                         }
                     }
                     List { ForEach(items, id: \.self) { item in
-                        Button(action:{
-                            viewChanger.num = 1
-                            globalInt = item.id
-                        }, label:{
+                        NavigationLink(destination: RecipeView(viewChanger: viewChanger)){
                             Text(item.words ?? "unknown")
-                        })
+                        }.onAppear(){
+                            globalInt = item.id
+                        }
                         }
                     //.onDelete(perform: removeItem)
                     }
@@ -72,19 +67,17 @@ struct RecipeView: View {
     @StateObject var viewChanger: ViewChanger
     @Environment(\.managedObjectContext) var managedObjectContext
     @FetchRequest(
-        entity: Thing.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Thing.words, ascending: true )],
-        predicate: NSPredicate(format: "(id = %@) AND (type = %@)", globalInt, "name"))var name: FetchedResults<Thing>
+        entity: RName.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \RName.words, ascending: true )],
+        predicate: NSPredicate(format: "id = %@", globalInt))var name: FetchedResults<RName>
     @FetchRequest(
-        entity: Thing.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Thing.words, ascending: true )],
-        predicate: NSPredicate(format: "(id = %@) AND (type = %@)", globalInt, "ing"))var ings: FetchedResults<Thing>
+        entity: Ing.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Ing.words, ascending: true )],
+        predicate: NSPredicate(format: "id = %@", globalInt))var ings: FetchedResults<Ing>
     @FetchRequest(
-        entity: Thing.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Thing.words, ascending: true )],
-        predicate: NSPredicate(format: "(id = %@)", globalInt))var steps: FetchedResults<Thing>
-    let ingpredicate = NSPredicate(format: "type = %@", "ing")
-    let inglist = ings.filtered(using: ingpredicate)
+        entity: Step.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \Step.words, ascending: true )],
+        predicate: NSPredicate(format: "id = %@", globalInt))var steps: FetchedResults<Step>
     var body: some View {
         List {
             Section(header: Text("Recipe:")) {
@@ -107,13 +100,12 @@ struct RecipeView: View {
 struct AddRecipeView: View {
     @Environment(\.managedObjectContext) var managedObjectContext
     @FetchRequest(
-        entity: Thing.entity(),
-        sortDescriptors: [NSSortDescriptor(keyPath: \Thing.words, ascending: true )],
-        predicate: NSPredicate(format: "type = %@", "name"))var items: FetchedResults<Thing>
+        entity: RName.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \RName.words, ascending: true )])var items: FetchedResults<RName>
     @StateObject var viewChanger: ViewChanger
-    @State var name: String = ""
-    @State var ing: String = ""
-    @State var step: String = ""
+    @State var nameEntry: String = ""
+    @State var ingEntry: String = ""
+    @State var stepEntry: String = ""
     @State var showName: Bool = true
     @State var nameDisplay: String = ""
     @State var ingDisplay = [String] ()
@@ -123,15 +115,15 @@ struct AddRecipeView: View {
             Text("Add Recipe")
             if showName == true {
                 HStack {
-                    TextField("Add name here", text:$name)
+                    TextField("Add name here", text:$nameEntry)
                     Button(action:{
-                        let newObject = Thing(context: managedObjectContext)
-                        newObject.words = name
-                        newObject.id = Int64(items.count)
-                        newObject.type = "name"
+                        let newObject = RName(context: managedObjectContext)
+                        newObject.words = nameEntry
+                        newObject.id = Int64(items.count + 1)
                         PersistenceController.shared.save()
                         showName = false
-                        name = ""
+                        nameDisplay = nameEntry
+                        nameEntry = ""
                     }, label:{
                         Text("Add")
                     })
@@ -141,30 +133,43 @@ struct AddRecipeView: View {
                 Text("Name Added!")
             }
             HStack {
-                TextField("Add ingredient", text:$ing)
+                TextField("Add ingredient", text:$ingEntry)
                 Button(action:{
-                    let newObject = Thing(context: managedObjectContext)
-                    newObject.words = ing
-                    newObject.id = Int64(items.count)
-                    newObject.type = "ing"
+                    let newObject = Ing(context: managedObjectContext)
+                    newObject.words = ingEntry
+                    newObject.id = Int64(items.count + 1)
                     PersistenceController.shared.save()
-                    ing = ""
+                    ingDisplay.append(ingEntry)
+                    ingEntry = ""
                 }, label:{
                     Text("Add")
                 })
             }
             HStack {
-                TextField("Add Step", text:$step)
+                TextField("Add Step", text:$stepEntry)
                 Button(action:{
-                    let newObject = Thing(context: managedObjectContext)
-                    newObject.words = step
-                    newObject.id = Int64(items.count)
-                    newObject.type = "step"
+                    let newObject = Step(context: managedObjectContext)
+                    newObject.words = stepEntry
+                    newObject.id = Int64(items.count + 1)
                     PersistenceController.shared.save()
-                    step = ""
+                    stepDisplay.append(stepEntry)
+                    stepEntry = ""
                 }, label:{
                     Text("Add")
                 })
+            }
+            Text(nameDisplay)
+            List {
+                Section(header: Text("Ingredients:")) {
+                    ForEach(ingDisplay, id: \.self) { itm in
+                        Text(itm)
+                    }
+                }
+                Section(header: Text("Method:")) {
+                    ForEach(stepDisplay, id: \.self) { item in
+                        Text(item)
+                    }
+                }
             }
         }
     }
