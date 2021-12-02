@@ -7,9 +7,6 @@
 
 import SwiftUI
 
-// Create view variables to store the name, ings and steps entered. Then display these
-// use a String var and two list vars.
-
 struct ContentView: View {
     @Environment(\.managedObjectContext) var managedObjectContext
     @FetchRequest(
@@ -18,16 +15,14 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
                 VStack{
-                    Text("Recipe Storage")
+                    Title(words: "Recipe Storage")
                     HStack{
                         Spacer()
                         NavigationLink(destination: AddRecipeView()){
-                            Text("add")
-                            //Image(systemName: "plus")
-                                //.resizable()
-                                //.frame(width: 20, height: 20)
-                                //.foregroundColor(Color.black)
-                                //.padding(10)
+                            Image(systemName: "plus")
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                                .padding(2)
                         }
                     }
                     List { ForEach(items, id: \.self) { item in
@@ -103,20 +98,28 @@ struct AddRecipeView: View {
     @State var nameDisplay: String = ""
     @State var ingDisplay = [String] ()
     @State var stepDisplay = [String] ()
+    @State var displayMessage: String = ""
     var body: some View {
         VStack{
-            Text("Add Recipe")
+            Title(words: "Add Recipe")
+            Text(displayMessage).padding()
             if showName == true {
                 HStack {
                     TextField("Add name here", text:$nameEntry)
                     Button(action:{
-                        let newObject = RName(context: managedObjectContext)
-                        newObject.words = nameEntry
-                        newObject.id = Int64(items.count)
-                        PersistenceController.shared.save()
-                        showName = false
-                        nameDisplay = nameEntry
-                        nameEntry = ""
+                        if nameEntry != "" {
+                            let newObject = RName(context: managedObjectContext)
+                            newObject.words = nameEntry
+                            newObject.id = Int64(items.count)
+                            PersistenceController.shared.save()
+                            showName = false
+                            nameDisplay = nameEntry
+                            nameEntry = ""
+                            displayMessage = ""
+                        }
+                        else {
+                            displayMessage = "Please enter a name"
+                        }
                     }, label:{
                         Text("Add")
                     })
@@ -128,17 +131,23 @@ struct AddRecipeView: View {
             HStack {
                 TextField("Add ingredient", text:$ingEntry)
                 Button(action:{
-                    let newObject = Ing(context: managedObjectContext)
-                    newObject.words = ingEntry
-                    if showName == true {
-                        newObject.id = Int64(items.count)
+                    if ingEntry != "" {
+                        let newObject = Ing(context: managedObjectContext)
+                        newObject.words = ingEntry
+                        if showName == true {
+                            newObject.id = Int64(items.count)
+                        }
+                        else {
+                            newObject.id = Int64(items.count - 1)
+                        }
+                        PersistenceController.shared.save()
+                        ingDisplay.append(ingEntry)
+                        ingEntry = ""
+                        displayMessage = ""
                     }
                     else {
-                        newObject.id = Int64(items.count - 1)
+                        displayMessage = "Please enter an ingredient"
                     }
-                    PersistenceController.shared.save()
-                    ingDisplay.append(ingEntry)
-                    ingEntry = ""
                 }, label:{
                     Text("Add")
                 })
@@ -146,22 +155,28 @@ struct AddRecipeView: View {
             HStack {
                 TextField("Add Step", text:$stepEntry)
                 Button(action:{
-                    let newObject = Step(context: managedObjectContext)
-                    newObject.words = stepEntry
-                    if showName == true {
-                        newObject.id = Int64(items.count)
+                    if stepEntry != "" {
+                        let newObject = Step(context: managedObjectContext)
+                        newObject.words = stepEntry
+                        if showName == true {
+                            newObject.id = Int64(items.count)
+                        }
+                        else {
+                            newObject.id = Int64(items.count - 1)
+                        }
+                        PersistenceController.shared.save()
+                        stepDisplay.append(stepEntry)
+                        stepEntry = ""
+                        displayMessage = ""
                     }
                     else {
-                        newObject.id = Int64(items.count - 1)
+                        displayMessage = "Please enter a step"
                     }
-                    PersistenceController.shared.save()
-                    stepDisplay.append(stepEntry)
-                    stepEntry = ""
                 }, label:{
                     Text("Add")
                 })
             }
-            Text(nameDisplay)
+            Title(words: nameDisplay)
             List {
                 Section(header: Text("Ingredients:")) {
                     ForEach(ingDisplay, id: \.self) { itm in
@@ -178,15 +193,11 @@ struct AddRecipeView: View {
     }
 }
 
-struct ButtonWidget: View {
+struct Title: View {
     var words: String
     var body: some View {
-        Text(words)
-            .padding()
-            .foregroundColor(.black)
-            .background(Color.green)
-            .font(.system(size: 18, weight: .bold))
-            .cornerRadius(30)
+        Text(words).padding()
+            .font(.system(size: 20, weight: .bold))
     }
 }
 
